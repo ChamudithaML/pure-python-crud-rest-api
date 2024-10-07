@@ -6,13 +6,13 @@ users = {}
 
 SECRET_KEY = "chama12345"  
 
-def signup(username, password):
+def signup(name, username, password):
     if username in users:
         return "Username already exists."
 
     password_hash = hashlib.sha256(password.encode()).hexdigest()
     
-    users[username] = password_hash
+    users[username] = {"name":name, "pass":password_hash}
     return "User signed up successfully."
 
 def signin(username, password):
@@ -21,7 +21,7 @@ def signin(username, password):
     
     password_hash = hashlib.sha256(password.encode()).hexdigest()
     
-    if users[username] == password_hash:
+    if users[username]['pass'] == password_hash:
         token = generate_token(username)
         return {"message": "User signed in successfully.", "token": token}
     else:

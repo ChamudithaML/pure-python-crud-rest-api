@@ -4,14 +4,19 @@ from auth import signup, signin
 from product import create_product, update_product_stock, view_products, delete_product
 import jwt
 
+
 class RequestHandler(BaseHTTPRequestHandler):
     def do_POST(self):
         if self.path == "/signup":
             content_length = int(self.headers['Content-Length'])
             post_data = self.rfile.read(content_length)
             data = json.loads(post_data)
-            response = signup(data['username'], data['password'])
-            self._send_response(response)
+            response = signup(data['name'], data['username'], data['password'])
+            
+            if response == "User signed up successfully.":
+                self._send_response(response, status_code=201)  # Use status code 201 for successful signup
+            else:
+                self._send_response(response, status_code=400)  # Use 400 for errors like "Username already exists"
 
         elif self.path == "/signin":
             content_length = int(self.headers['Content-Length'])
@@ -55,12 +60,22 @@ class RequestHandler(BaseHTTPRequestHandler):
 
             self._send_response(response)
 
-    def _send_response(self, message):
-        self.send_response(200)
+    def do_OPTIONS(self):
+        self.send_response(204)
+        self.send_header('Access-Control-Allow-Origin', '*')
+        self.send_header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS')
+        self.send_header('Access-Control-Allow-Headers', 'Content-Type, Authorization')
+        self.end_headers()
+
+    def _send_response(self, message, status_code=200):
+        self.send_response(status_code)
         self.send_header('Content-type', 'application/json')
+        self.send_header('Access-Control-Allow-Origin', '*')
+        self.send_header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS')
+        self.send_header('Access-Control-Allow-Headers', 'Content-Type, Authorization')
         self.end_headers()
         self.wfile.write(json.dumps({"message": message}).encode())
-         
+
 
 
 if __name__ == "__main__":
