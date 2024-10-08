@@ -1,7 +1,7 @@
 from http.server import BaseHTTPRequestHandler, HTTPServer
 import json
 from auth import signup, signin
-from product import create_product, update_product_stock, view_products, delete_product
+from product import create_product, update_product_stock, view_products, delete_product, get_product
 import jwt
 
 
@@ -14,9 +14,9 @@ class RequestHandler(BaseHTTPRequestHandler):
             response = signup(data['name'], data['username'], data['password'])
             
             if response == "User signed up successfully.":
-                self._send_response(response, status_code=201)  # Use status code 201 for successful signup
+                self._send_response(response, status_code=201) 
             else:
-                self._send_response(response, status_code=400)  # Use 400 for errors like "Username already exists"
+                self._send_response(response, status_code=400) 
 
         elif self.path == "/signin":
             content_length = int(self.headers['Content-Length'])
@@ -36,6 +36,10 @@ class RequestHandler(BaseHTTPRequestHandler):
         if self.path == "/products":
             response = view_products()
             self._send_response(response)
+        elif self.path.startswith("/products/"):
+            product_name = self.path.split("/")[-1]
+            response = get_product(product_name)
+            self._send_response(response) 
     
     def do_DELETE(self):
         if self.path.startswith("/products/"):
@@ -53,6 +57,7 @@ class RequestHandler(BaseHTTPRequestHandler):
                 self._send_response("Bad Request: Missing 'name' or 'stock_count' fields.", status_code=400)
                 return
 
+            # print("req recieved")
             name = data['name']
             stock_count = data['stock_count']
 

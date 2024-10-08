@@ -20,7 +20,7 @@ def update_product_stock(name, amount):
     except ValueError:
         return "Invalid stock count value. It must be an integer."
 
-    products[name]['stock_count'] += amount
+    products[name]['stock_count'] = amount
     return "Product stock updated successfully."
 
 def view_products():
@@ -32,3 +32,9 @@ def delete_product(name):
     
     del products[name]
     return "Product deleted successfully."
+
+def get_product(name):
+    if name not in products:
+        return "Product does not exist."
+    
+    return products[name]
